@@ -1,5 +1,7 @@
 package top.kylewang.service.controller;
 
+import java.util.UUID;
+
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -9,15 +11,16 @@ import org.springframework.web.bind.annotation.RestController;
  * @date 2019年04月02日
  */
 @RestController
-public class BindCardController {
+public class DataController {
 
-	@RequestMapping("queryBindCard")
-	public String queryBindCard(Long userid) {
+	@RequestMapping("queryData")
+	public String queryBindCard(int id) {
+		long sleepTime = 10000;
 		try {
-			Thread.sleep(1000);
+			Thread.sleep(sleepTime);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		return "TS95271314-" + userid;
+		return id + "_" + UUID.randomUUID().toString();
 	}
 }

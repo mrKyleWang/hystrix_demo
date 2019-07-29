@@ -3,7 +3,9 @@ package top.kylewang.invoker;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.client.HttpComponentsAsyncClientHttpRequestFactory;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -19,11 +21,20 @@ public class InvokerApplication {
 	}
 
 	@Bean
-	public RestTemplate customRestTemplate() {
+	public RestTemplate restTemplate() {
 		HttpComponentsClientHttpRequestFactory httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
 		httpRequestFactory.setConnectionRequestTimeout(1000);
 		httpRequestFactory.setConnectTimeout(2000);
 		httpRequestFactory.setReadTimeout(2000);
 		return new RestTemplate(httpRequestFactory);
+	}
+
+	@Bean
+	public AsyncRestTemplate asyncRestTemplate() {
+		HttpComponentsAsyncClientHttpRequestFactory httpRequestFactory = new HttpComponentsAsyncClientHttpRequestFactory();
+		httpRequestFactory.setConnectionRequestTimeout(10000);
+		httpRequestFactory.setConnectTimeout(2000);
+		httpRequestFactory.setReadTimeout(20000);
+		return new AsyncRestTemplate(httpRequestFactory);
 	}
 }

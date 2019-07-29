@@ -1,4 +1,4 @@
-package top.kylewang.invoker.entity;
+package top.kylewang.invoker.hystrix;
 
 import com.netflix.hystrix.HystrixCommand;
 import com.netflix.hystrix.HystrixCommandGroupKey;

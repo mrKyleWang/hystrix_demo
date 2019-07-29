@@ -1,5 +1,7 @@
 server:
   port: 9001
-
 logging:
   level: debug
+spring:
+  application:
+    name: data-service
