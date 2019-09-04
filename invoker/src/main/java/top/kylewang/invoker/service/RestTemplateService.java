@@ -1,54 +1,41 @@
 package top.kylewang.invoker.service;
 
 import com.netflix.hystrix.HystrixCommand;
+import com.netflix.hystrix.HystrixCommandGroupKey;
+import com.netflix.hystrix.HystrixCommandProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import top.kylewang.invoker.hystrix.HystrixSetterFactory;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-/**
- * 使用AsyncRestTemplate请求
- * @author KyleWang
- * @version 1.0
- * @date 2019年04月02日
- */
 @Service
 public class RestTemplateService {
 
 	private static final Logger logger = LoggerFactory.getLogger(RestTemplateService.class);
 
-	private Map<Integer, String> cache = new ConcurrentHashMap<>();
-
 	@Autowired
 	private RestTemplate restTemplate;
 
 	public String queryData(int id) {
-		if (cache.containsKey(id)) {
-			logger.info("------------- get cache -------------");
-			return cache.get(id);
-		}
+		// 创建HystrixCommand.Setter
+		int hystrixTimeOut = 4000;
+		HystrixCommandProperties.Setter propSetter = HystrixCommandProperties.Setter().withExecutionTimeoutEnabled(true)
+				.withExecutionTimeoutInMilliseconds(hystrixTimeOut)
+				.withExecutionIsolationStrategy(HystrixCommandProperties.ExecutionIsolationStrategy.THREAD)
+				.withExecutionIsolationThreadInterruptOnTimeout(true);
+		HystrixCommand.Setter setter = HystrixCommand.Setter
+				.withGroupKey(HystrixCommandGroupKey.Factory.asKey("queryData"))
+				.andCommandPropertiesDefaults(propSetter);
 
-		HystrixCommand.Setter setter = HystrixSetterFactory.getSetter("queryData", 5000);
+		// 通过Setter创建创建HystrixCommand
 		HystrixCommand<String> hystrixCommand = new HystrixCommand<String>(setter) {
 			@Override
 			protected String run() throws Exception {
-				try {
-
-					logger.info(Thread.currentThread().getName() + "------------- send request -------------");
-					String result = restTemplate.getForObject("http://127.0.0.1:9001/queryData?id={id}", String.class,
-							id);
-					logger.info(Thread.currentThread().getName() + "------------- get response -------------");
-					cache.put(id, result);
-					return result;
-				} catch (Exception e) {
-					e.printStackTrace();
-					return null;
-				}
+				logger.info(Thread.currentThread().getName() + "------------- send request -------------");
+				String result = restTemplate.getForObject("http://127.0.0.1:9001/queryData?id={id}", String.class, id);
+				logger.info(Thread.currentThread().getName() + "------------- get response -------------");
+				return result;
 			}
 
 			@Override
@@ -58,6 +45,8 @@ public class RestTemplateService {
 			}
 		};
 		logger.info(Thread.currentThread().getName() + "------------- execute command -------------");
+
+		// 执行HystrixCommand
 		return hystrixCommand.execute();
 	}
 }

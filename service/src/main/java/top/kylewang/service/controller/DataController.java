@@ -1,26 +1,22 @@
 package top.kylewang.service.controller;
 
-import java.util.UUID;
-
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * @author KyleWang
- * @version 1.0
- * @date 2019年04月02日
- */
+import java.util.UUID;
+
 @RestController
 public class DataController {
 
 	@RequestMapping("queryData")
-	public String queryBindCard(int id) {
-		long sleepTime = 10000;
+	public String queryData() {
+		// 等待5s后，返回随机字符串
+		long sleepTime = 5000;
 		try {
 			Thread.sleep(sleepTime);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		return id + "_" + UUID.randomUUID().toString();
+		return UUID.randomUUID().toString();
 	}
 }
